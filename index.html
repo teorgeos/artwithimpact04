@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css">
+  <title>公論紙</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gothic+A1&family=Gowun+Batang&family=Jua&family=Noto+Sans+KR:wght@100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Song+Myung&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+ 
+  <audio id="pageSound" src="sounds/page-flip.mp3" preload="auto"></audio>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"> </script>
+  <script src="turn.js"></script>
+  <script src="app.js"></script>
+  <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+  
+ <!-- <style>
+  #flipbook {
+    width: 1000;
+    height: 600;
+    autoCenter: true;
+    background: #fff;
+  } -->
+
+  <!-- </style> -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+</head>
+<body>
+<div id = "flipbook">
+<!-- <div class = "page"> lets look at some amazing pokemone <br> hey <br> hey</div>
+<div class = "page"> 22e <br> why  <br> why</div>
+<div class = "page"> 333333333333333</div> -->
+
+<div class = "page">
+<header class="page-header">
+        <div class="header-left">西江大學校</div>
+        <div class="header-center">Art with Impact</div>
+           <div class="header-right" id="current-date"></div>
+      </header>
+<div class="page-divider"></div>
+
+<h1 class = "page-title">公論紙</h1>
+
+<section class = "page-image">
+  <img src="exampleimage.png" alt="Newspaper Image"/>
+</section>
+
+<section class="page-subtitle">
+    “실시간으로 바뀌는 왜곡된 문장을 고쳐주세요”
+</section>
+
+ <div class="page-body">
+  <!-- app.js 로 채울 예정임 -->
+ </div>
+
+ <div class="action-box" style="display:none;">
+    <button class="action-btn" disabled>수정하기</button>
+  </div>
+
+<footer class="page-footer">
+    <div class="page-divider"></div>
+    <div class="footer-center">公論紙</div>
+  </footer>
+
+</div>
+
+<div class = "page">
+<header class="page-header">
+        <div class="header-left">西江大學校</div>
+        <div class="header-center">Art with Impact</div>
+           <div class="header-right" id="current-date"></div>
+      </header>
+<div class="page-divider"></div>
+
+<h1 class = "page-title">公論紙</h1>
+
+<section class = "page-image">
+  <img src="exampleimage.png" alt="Newspaper Image"/>
+</section>
+
+<section class="page-subtitle">
+    “실시간으로 바뀌는 왜곡된 문장을 고쳐주세요”
+</section>
+
+ <div class="page-body">
+  <!-- app.js 로 채울 예정임 -->
+ </div>
+
+ <div class="action-box" style="display:none;">
+    <button class="action-btn" disabled>수정하기</button>
+  </div>
+
+<footer class="page-footer">
+    <div class="page-divider"></div>
+    <div class="footer-center">公論紙</div>
+  </footer>
+
+</div>
+
+<div class = "page">
+<header class="page-header">
+        <div class="header-left">西江大學校</div>
+        <div class="header-center">Art with Impact</div>
+           <div class="header-right" id="current-date"></div>
+      </header>
+<div class="page-divider"></div>
+
+<h1 class = "page-title">公論紙</h1>
+
+<section class = "page-image">
+  <img src="exampleimage.png" alt="Newspaper Image"/>
+</section>
+
+<section class="page-subtitle">
+    “실시간으로 바뀌는 왜곡된 문장을 고쳐주세요”
+</section>
+
+ <div class="page-body">
+  <!-- app.js 로 채울 예정임 -->
+ </div>
+
+ <div class="action-box" style="display:none;">
+    <button class="action-btn" disabled>수정하기</button>
+  </div>
+
+<footer class="page-footer">
+    <div class="page-divider"></div>
+    <div class="footer-center">公論紙</div>
+  </footer>
+
+</div>
+
+
+
+</div>
+
+<script>
+  $(document).ready(function() {
+    $("#flipbook").turn(
+      {
+    display: 'single',
+    width: $(window).height() * 0.8,   // 세로의 2/3
+    height: $(window).height(),
+
+    // 920 * 1080
+    autoCenter: true
+  }
+);
+
+//  // 모서리 미리보기(겹치는 느낌) 끄고 싶으면:
+//       $('#flipbook').turn('peel', false);
+});
+
+  </script>
+</body>
+</html>

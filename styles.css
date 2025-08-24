@@ -158,7 +158,7 @@ body {
 }
 
 /* 액션 박스 / 버튼 */
-.action-box{
+/* .action-box{
   display: flex;
   justify-content: center;
   margin-top: 1.6vh;
@@ -176,7 +176,37 @@ body {
   background-color: #ccc;
   color: #888;
   cursor: not-allowed;
+} */
+
+/* 문장 옆 인라인 아이콘 버튼 */
+.action-btn-inline{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  /* margin-left: 6px; */
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: black;
+  /* vertical-align: middle; 문장과 기준선 맞추기 */
 }
+
+.action-btn-inline:disabled{
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+.action-btn-inline i{
+  font-size: 16px;
+  transition: transform .15s ease, color .2s ease, opacity .2s ease;
+}
+
+.action-btn-inline:active i{
+  color: yellow; /* 누르고 있는 동안만 노랑 */
+}
+
 
 /* 페이지 하단(선택) */
 .page-footer .footer-center{

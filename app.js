@@ -2,7 +2,7 @@
 // app.js
 // ======================
 
-const DISTORT_DELAY_MS = 5000; // 왜곡까지 대기시간
+const DISTORT_DELAY_MS = 3000; // 왜곡까지 대기시간
 const MIN_EDIT_LEN = 10;       // 수정 버튼 활성 최소 글자
 
 // ----- 페이지 데이터 (각 10문장, 왜곡 1개, 이미지 전/후) -----
@@ -57,40 +57,6 @@ const PAGES = [
       "배움은 전시장이 아니라 사람 사이에서 완성된다는 메시지를 전합니다."
     ],
     distort: { index: 8, text: "참여자 다수는 유료 전환으로 프로그램이 중단됐다고 증언했습니다." } // 9번째 왜곡
-  },
-  {
-    imgBefore: "img/page4_before.png",
-    imgAfter:  "img/page4_after.png",
-    sentences: [
-      "네 번째 페이지는 지역 기록 보존소의 디지털 전환 사례를 소개합니다.",
-      "자원봉사자는 사진과 필름을 스캔하고 메타데이터를 표준화합니다.",
-      "오탈자와 누락 정보는 커뮤니티 리뷰로 보완됩니다.",
-      "이용자는 주제·장소·연도로 탐색하며 자신만의 컬렉션을 만들 수 있습니다.",
-      "아카이브는 위조 방지를 위해 해시 기반 무결성 검증을 도입했습니다.",
-      "저작권 협의가 끝난 자료부터 점진적으로 공개 범위를 넓힙니다.",
-      "학교 수업을 위한 교육 팩도 함께 배포됩니다.",
-      "기록은 박물관의 뒷방이 아니라 현재의 삶에 닿아야 한다는 원칙입니다.",
-      "올해 하반기에는 구술 아카이빙 툴킷을 공개할 예정입니다.",
-      "보존과 접근성의 균형을 실험하는 과정이 계속됩니다."
-    ],
-    distort: { index: 1, text: "디지털화 과정에서 원본 필름 다수가 분실되었다고 밝혔습니다." } // 2번째 왜곡
-  },
-  {
-    imgBefore: "img/page5_before.png",
-    imgAfter:  "img/page5_after.png",
-    sentences: [
-      "다섯 번째 페이지는 예술교육 커리큘럼 개편안을 다룹니다.",
-      "학생은 분석·제작·발표를 넘나드는 순환형 수업을 경험합니다.",
-      "작품 평가는 결과물보다 과정 기록에 더 높은 비중을 둡니다.",
-      "지역 기관과의 파트너십으로 현장 실습을 확장합니다.",
-      "온라인 공동 편집 도구를 활용해 피드백을 상시화합니다.",
-      "장비 접근성이 낮은 학생을 위한 대여 프로그램이 운영됩니다.",
-      "비판적 사고와 윤리 섹션이 필수로 포함됩니다.",
-      "장애 접근성 체크리스트가 과제 지침에 추가됐습니다.",
-      "학기 말 페어는 누구나 참여 가능한 오픈 포맷으로 진행됩니다.",
-      "개편안은 학습자 주도성과 돌봄의 언어를 강조합니다."
-    ],
-    distort: { index: 4, text: "교과는 전면 대면 시험으로 회귀하며 과정 기록은 폐지됩니다." } // 5번째 왜곡
   }
 ];
 
@@ -112,6 +78,61 @@ const todayStr = () => {
 };
 
 // ----- 렌더러 -----
+// function renderSentences(pageIndex) {
+//   const $root = getPageRoot(pageIndex);
+//   const $body = $root.find(".page-body");
+//   const state = pageStates.get(pageIndex) || [];
+//   $body.empty();
+
+//   state.forEach((s, idx) => {
+//     const span = document.createElement("span");
+//     span.className = "sentence" + (s.status === "distorted" ? " distorting" : "");
+//     span.textContent = s.text;
+//     // 왜곡된 문장만 편집 가능
+//     span.addEventListener("click", () => {
+//       if ((pageStates.get(pageIndex)[idx] || {}).status === "distorted") {
+//         enterEditMode(span, pageIndex, idx);
+//       }
+//     });
+//     $body[0].appendChild(span);
+//     $body[0].appendChild(document.createTextNode(" "));
+//   });
+// }
+
+// app.js 상단 어딘가
+function preloadImages() {
+  PAGES.forEach(p => {
+    ['imgBefore','imgAfter'].forEach(k => {
+      const img = new Image();
+      img.src = p[k];
+    });
+  });
+}
+
+
+function initAllPages() {
+  const need = PAGES.length;
+
+  for (let i = 1; i <= need; i++) {
+    const data = PAGES[i - 1];
+    const $root = getPageRoot(i);
+
+    // 날짜
+    const date = todayStr();
+    $root.find(".current-date, #current-date").text(date);
+
+    // 이미지(before) 고정
+    $root.find(".page-image img").attr("src", data.imgBefore);
+
+    // 상태/문장 렌더
+    pageStates.set(i, data.sentences.map(t => ({ text: t, status: "original" })));
+    renderSentences(i);
+  }
+}
+
+
+
+
 function renderSentences(pageIndex) {
   const $root = getPageRoot(pageIndex);
   const $body = $root.find(".page-body");
@@ -119,19 +140,44 @@ function renderSentences(pageIndex) {
   $body.empty();
 
   state.forEach((s, idx) => {
+    // 문장 노드
     const span = document.createElement("span");
     span.className = "sentence" + (s.status === "distorted" ? " distorting" : "");
     span.textContent = s.text;
-    // 왜곡된 문장만 편집 가능
+
+    // 왜곡 문장은 클릭으로도 편집 진입 허용
     span.addEventListener("click", () => {
       if ((pageStates.get(pageIndex)[idx] || {}).status === "distorted") {
-        enterEditMode(span, pageIndex, idx);
+        // 옆에 만들어질 버튼 참조가 없을 수 있으므로, 이미 있으면 가져오고 없으면 null
+        const maybeBtn = span.nextSibling && span.nextSibling.classList && span.nextSibling.classList.contains('action-btn-inline')
+          ? span.nextSibling
+          : null;
+        enterEditMode(span, pageIndex, idx, maybeBtn);
       }
     });
+
     $body[0].appendChild(span);
+
+    // 왜곡 문장 옆에 아이콘 버튼 추가
+    if (s.status === "distorted") {
+      const btn = document.createElement("button");
+      btn.className = "action-btn-inline";
+      btn.type = "button";
+      btn.setAttribute("aria-label", "문장 수정");
+      btn.innerHTML = '<i class="fas fa-pen"></i>'; // 연필 아이콘
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation(); // 문장 클릭 이벤트와 충돌 방지
+        enterEditMode(span, pageIndex, idx, btn);
+      });
+      $body[0].appendChild(btn);
+    }
+
+    // 문장 간 공백
     $body[0].appendChild(document.createTextNode(" "));
   });
 }
+
+
 
 // 왜곡 예약/적용
 function scheduleDistortion(pageIndex) {
@@ -155,117 +201,229 @@ function applyDistortion(pageIndex) {
   st[index] = { text, status: "distorted" };
   renderSentences(pageIndex);
 
-  // 버튼 노출 & 비활성
-  const $root = getPageRoot(pageIndex);
-  $root.find(".action-box").show();
-  $root.find(".action-btn").prop("disabled", true);
+  // // 버튼 노출 & 비활성
+  // const $root = getPageRoot(pageIndex);
+  // $root.find(".action-box").show();
+  // $root.find(".action-btn").prop("disabled", true);
 }
 
 // 인라인 수정
-function enterEditMode(spanEl, pageIndex, sentIdx) {
-  const $root = getPageRoot(pageIndex);
-  const $btn = $root.find(".action-btn");
+// function enterEditMode(spanEl, pageIndex, sentIdx) {
+//   const $root = getPageRoot(pageIndex);
+//   const $btn = $root.find(".action-btn");
 
+//   spanEl.contentEditable = "true";
+//   spanEl.focus();
+
+//   const onInput = () => {
+//     const val = spanEl.textContent.trim();
+//     $btn.prop("disabled", val.length < MIN_EDIT_LEN);
+//   };
+//   spanEl.addEventListener("input", onInput);
+
+//   $btn.off("click").on("click", async () => {
+//     const newText = spanEl.textContent.trim();
+//     if (newText.length < MIN_EDIT_LEN) return;
+
+//     // 상태/UI 반영
+//     const st = pageStates.get(pageIndex);
+//     st[sentIdx] = { text: newText, status: "modified" };
+//     spanEl.classList.remove("distorting");
+//     spanEl.contentEditable = "false";
+//     $btn.prop("disabled", true);
+//     $root.find(".action-box").hide();
+
+// //     // 이미지 교체 (before -> after)
+// //     const data = PAGES[pageIndex - 1];
+// //     $root.find(".page-image img").attr("src", data.imgAfter);
+
+// //     // TODO: 실제 저장이 필요하면 여기서 fetch 호출
+// //     // await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({page: pageIndex, index: sentIdx, text: newText}) });
+// //   });
+
+//  // 이미지 교체 (before -> after) + 페이드인
+//   const data = PAGES[pageIndex - 1];
+//   const $img = $root.find(".page-image img");
+
+//   // 1) 먼저 서서히 사라지게
+//   $img.addClass("fading");
+
+//   setTimeout(() => {
+//     // 2) 이미지 src 바꾸고
+//     $img.attr("src", data.imgAfter);
+
+//     // 3) 다시 서서히 나타나게
+//     $img.removeClass("fading");
+
+    
+//   }, 300); // 0.3초 뒤에 교체 (transition과 어울리게)
+// });
+// }
+function enterEditMode(spanEl, pageIndex, sentIdx, btnEl) {
+  // 이미 편집 중이면 무시
+  if (spanEl.isContentEditable) return;
+
+  // 편집 가능
   spanEl.contentEditable = "true";
   spanEl.focus();
+  spanEl.classList.add("distorting"); // 굵게/밑줄 유지
+
+  // 아이콘을 체크로 교체, 우선 비활성
+  btnEl.innerHTML = '<i class="fas fa-paper-plane"></i>';
+  btnEl.disabled = true;
 
   const onInput = () => {
     const val = spanEl.textContent.trim();
-    $btn.prop("disabled", val.length < MIN_EDIT_LEN);
+    btnEl.disabled = val.length < MIN_EDIT_LEN;
   };
   spanEl.addEventListener("input", onInput);
 
-  $btn.off("click").on("click", async () => {
+  // 체크(저장) 동작
+  const onSave = () => {
     const newText = spanEl.textContent.trim();
     if (newText.length < MIN_EDIT_LEN) return;
 
-    // 상태/UI 반영
+    // 상태 업데이트
     const st = pageStates.get(pageIndex);
     st[sentIdx] = { text: newText, status: "modified" };
+
+    // UI 정리
     spanEl.classList.remove("distorting");
     spanEl.contentEditable = "false";
-    $btn.prop("disabled", true);
-    $root.find(".action-box").hide();
+    spanEl.removeEventListener("input", onInput);
 
-//     // 이미지 교체 (before -> after)
-//     const data = PAGES[pageIndex - 1];
-//     $root.find(".page-image img").attr("src", data.imgAfter);
+    // 아이콘 버튼 제거(원하면 숨김 처리로 대체 가능)
+    btnEl.remove();
 
-//     // TODO: 실제 저장이 필요하면 여기서 fetch 호출
-//     // await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({page: pageIndex, index: sentIdx, text: newText}) });
-//   });
+    // 이미지 교체 (before → after) + 페이드
+    const $root = getPageRoot(pageIndex);
+    const data = PAGES[pageIndex - 1];
+    const $img = $root.find(".page-image img");
+    $img.addClass("fading");
+    setTimeout(() => {
+      $img.attr("src", data.imgAfter);
+      $img.removeClass("fading");
+    }, 300);
+  };
 
- // 이미지 교체 (before -> after) + 페이드인
-  const data = PAGES[pageIndex - 1];
-  const $img = $root.find(".page-image img");
-
-  // 1) 먼저 서서히 사라지게
-  $img.addClass("fading");
-
-  setTimeout(() => {
-    // 2) 이미지 src 바꾸고
-    $img.attr("src", data.imgAfter);
-
-    // 3) 다시 서서히 나타나게
-    $img.removeClass("fading");
-
-    
-  }, 300); // 0.3초 뒤에 교체 (transition과 어울리게)
-});
+  btnEl.addEventListener("click", onSave, { once: true });
 }
+
 
 // 페이지 로드 (문장/이미지/날짜 초기화 + 왜곡 예약)
-function loadPage(pageIndex) {
-  currentPage = pageIndex;
-  clearDistortion(pageIndex);
+// function loadPage(pageIndex) {
+//   currentPage = pageIndex;
+//   clearDistortion(pageIndex);
 
-  const data = PAGES[pageIndex - 1];
-  if (!data) return;
+//   const data = PAGES[pageIndex - 1];
+//   if (!data) return;
 
-  // 날짜 채우기 (id 혹은 class 둘 다 대응)
-  const date = todayStr();
-  const $root = getPageRoot(pageIndex);
-  const $dates = $root.find(".current-date, #current-date");
-  $dates.text(date);
+//   // 날짜 채우기 (id 혹은 class 둘 다 대응)
+//   const date = todayStr();
+//   const $root = getPageRoot(pageIndex);
+//   const $dates = $root.find(".current-date, #current-date");
+//   $dates.text(date);
 
-  // 이미지 초기화
-  $root.find(".page-image img").attr("src", data.imgBefore);
+//   // 이미지 초기화
+//   $root.find(".page-image img").attr("src", data.imgBefore);
 
-  // 버튼 초기화
-  $root.find(".action-box").hide();
-  $root.find(".action-btn").prop("disabled", true);
+//   // 버튼 초기화
+//   $root.find(".action-box").hide();
+//   $root.find(".action-btn").prop("disabled", true);
 
-  // 문장 상태 초기화
-  pageStates.set(pageIndex, data.sentences.map(t => ({ text: t, status: "original" })));
-  renderSentences(pageIndex);
+//   // 문장 상태 초기화
+//   pageStates.set(pageIndex, data.sentences.map(t => ({ text: t, status: "original" })));
+//   renderSentences(pageIndex);
 
-  // 왜곡 예약
-  scheduleDistortion(pageIndex);
-}
+//   // 왜곡 예약
+//   scheduleDistortion(pageIndex);
+// }
 
 
+// document.addEventListener("DOMContentLoaded", () => {
+//   const have = getPageCount();
+//   const need = PAGES.length;
+
+//   if (have < need) {
+//     console.warn(`[app.js] #flipbook .page 개수(${have}) < 데이터 페이지 수(${need}). HTML에 .page를 더 추가하세요.`);
+//   }
+
+//   // 첫 페이지 로드
+//   loadPage(1);
+
+//   // 페이지 넘길 때마다 현재 페이지 로드 (turn.js가 이미 초기화돼 있다고 가정하고 함)
+//   if ($.fn && $.fn.turn) {
+//     $("#flipbook").bind("turned", function(_, page){
+//       // turn.js는 1-based page index
+//       if (page >= 1 && page <= need) loadPage(page);
+
+//       const audio = document.getElementById("pageSound");
+//       if (audio) {
+//         audio.currentTime = 0; // 첨부터 재생
+//         audio.play().catch(err => console.log("Audio play blocked:", err));
+//       }
+//     });
+//   }
+// });
 document.addEventListener("DOMContentLoaded", () => {
   const have = getPageCount();
   const need = PAGES.length;
-
   if (have < need) {
     console.warn(`[app.js] #flipbook .page 개수(${have}) < 데이터 페이지 수(${need}). HTML에 .page를 더 추가하세요.`);
   }
 
-  // 첫 페이지 로드
-  loadPage(1);
+  // 1) 모두 먼저 렌더
+  initAllPages();
 
-  // 페이지 넘길 때마다 현재 페이지 로드 (turn.js가 이미 초기화돼 있다고 가정하고 함)
+  // 2) 이미지 프리로드
+  preloadImages();
+
+  // 3) 현재 페이지 기준 왜곡 타이머 시작
+  currentPage = 1;
+  scheduleDistortion(1);
+
+  // 4) 페이지 넘길 때 타이머만 관리
+  // if ($.fn && $.fn.turn) {
+  //   let lastPage = 1;
+  //   $("#flipbook").bind("turned", function(_, page){
+  //     // 이전 페이지 타이머 정리
+  //     clearDistortion(lastPage);
+
+  //     // 현재 페이지 갱신 & 왜곡 예약
+  //     currentPage = page;
+  //     scheduleDistortion(page);
+  //     lastPage = page;
+
+  //     const audio = document.getElementById("pageSound");
+  //     if (audio) {
+  //       audio.currentTime = 0;
+  //       audio.play().catch(() => {});
+  //     }
+  //   });
+  // }
   if ($.fn && $.fn.turn) {
-    $("#flipbook").bind("turned", function(_, page){
-      // turn.js는 1-based page index
-      if (page >= 1 && page <= need) loadPage(page);
+  let lastPage = 1;
 
-      const audio = document.getElementById("pageSound");
-      if (audio) {
-        audio.currentTime = 0; // 첨부터 재생
-        audio.play().catch(err => console.log("Audio play blocked:", err));
-      }
-    });
-  }
+  $("#flipbook").bind("turned", function(_, page){
+    // 🔧 같은 페이지로의 반복 turned 호출이면 무시
+    if (page === lastPage) {
+      return;
+    }
+
+    // 이전 페이지만 타이머 정리
+    clearDistortion(lastPage);
+
+    // 현재 페이지 갱신 & 왜곡 예약
+    currentPage = page;
+    scheduleDistortion(page);
+    lastPage = page;
+
+    const audio = document.getElementById("pageSound");
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    }
+  });
+}
+
 });

@@ -173,7 +173,7 @@ function renderSentences(pageIndex) {
     }
 
     // 문장 간 공백
-    $body[0].appendChild(document.createTextNode(" "));
+    // $body[0].appendChild(document.createTextNode(" "));
   });
 }
 
@@ -189,23 +189,25 @@ function clearDistortion(pageIndex) {
   const t = timers.get(pageIndex);
   if (t) { clearTimeout(t); timers.delete(pageIndex); }
 }
-function applyDistortion(pageIndex) {
-  if (pageIndex !== currentPage) return; // 페이지 넘어갔으면 무시
-  const data = PAGES[pageIndex - 1];
-  if (!data || !data.distort) return;
+// function applyDistortion(pageIndex) {
+//   if (pageIndex !== currentPage) return; // 페이지 넘어갔으면 무시
+//   const data = PAGES[pageIndex - 1];
+//   if (!data || !data.distort) return;
 
-  const st = pageStates.get(pageIndex);
-  const { index, text } = data.distort;
-  if (!st[index] || st[index].status === "modified") return;
+//   const st = pageStates.get(pageIndex);
+//   const { index, text } = data.distort;
+//   if (!st[index] || st[index].status === "modified") return;
 
-  st[index] = { text, status: "distorted" };
-  renderSentences(pageIndex);
+//   st[index] = { text, status: "distorted" };
+//   renderSentences(pageIndex);
 
-  // // 버튼 노출 & 비활성
-  // const $root = getPageRoot(pageIndex);
-  // $root.find(".action-box").show();
-  // $root.find(".action-btn").prop("disabled", true);
-}
+//   // // 버튼 노출 & 비활성
+//   // const $root = getPageRoot(pageIndex);
+//   // $root.find(".action-box").show();
+//   // $root.find(".action-btn").prop("disabled", true);
+// }
+
+
 
 // 인라인 수정
 // function enterEditMode(spanEl, pageIndex, sentIdx) {
@@ -259,55 +261,185 @@ function applyDistortion(pageIndex) {
 //   }, 300); // 0.3초 뒤에 교체 (transition과 어울리게)
 // });
 // }
-function enterEditMode(spanEl, pageIndex, sentIdx, btnEl) {
-  // 이미 편집 중이면 무시
-  if (spanEl.isContentEditable) return;
 
-  // 편집 가능
-  spanEl.contentEditable = "true";
-  spanEl.focus();
-  spanEl.classList.add("distorting"); // 굵게/밑줄 유지
+// function applyDistortion(pageIndex) {
+//   if (pageIndex !== currentPage) return;
+//   const data = PAGES[pageIndex - 1];
+//   if (!data || !data.distort) return;
 
-  // 아이콘을 체크로 교체, 우선 비활성
-  btnEl.innerHTML = '<i class="fas fa-paper-plane"></i>';
-  btnEl.disabled = true;
+//   const st = pageStates.get(pageIndex);
+//   const { index, text: distortedText } = data.distort;
 
-  const onInput = () => {
-    const val = spanEl.textContent.trim();
-    btnEl.disabled = val.length < MIN_EDIT_LEN;
-  };
-  spanEl.addEventListener("input", onInput);
+//   // 이미 수정된 문장은 스킵
+//   if (!st[index] || st[index].status === "modified") return;
 
-  // 체크(저장) 동작
-  const onSave = () => {
-    const newText = spanEl.textContent.trim();
-    if (newText.length < MIN_EDIT_LEN) return;
+//   // 현재 페이지의 해당 문장 <span> DOM 찾기
+//   const $root = getPageRoot(pageIndex);
+//   const $body = $root.find(".page-body");
+//   if (!$body.length) return;
 
-    // 상태 업데이트
-    const st = pageStates.get(pageIndex);
-    st[sentIdx] = { text: newText, status: "modified" };
+//   const $spans = $body.find(".sentence");     // 렌더된 문장들
+//   const targetSpan = $spans.get(index);       // 왜곡 대상
+//   if (!targetSpan) {
+//     // 안전장치: 못 찾으면 그냥 즉시 반영 (fallback)
+//     st[index] = { text: distortedText, status: "distorted" };
+//     renderSentences(pageIndex);
+//     return;
+//   }
 
-    // UI 정리
-    spanEl.classList.remove("distorting");
-    spanEl.contentEditable = "false";
-    spanEl.removeEventListener("input", onInput);
+//   // 현재(원본) 텍스트 보장
+//   const originalText = st[index].text;
+//   targetSpan.textContent = originalText;
 
-    // 아이콘 버튼 제거(원하면 숨김 처리로 대체 가능)
-    btnEl.remove();
+//   // 커서 표시 안 하고 싶으면 cursor: '' 로, 보이게 하려면 '|' 등으로
+//   const tw = new Typewriter(targetSpan, {
+//     autoStart: false,
+//     delay: 32,            // 타이핑 속도 (원하면 숫자 조절)
+//     cursor: '|'           // 커서 표시 원치 않으면 ''
+//   });
 
-    // 이미지 교체 (before → after) + 페이드
-    const $root = getPageRoot(pageIndex);
-    const data = PAGES[pageIndex - 1];
-    const $img = $root.find(".page-image img");
-    $img.addClass("fading");
-    setTimeout(() => {
-      $img.attr("src", data.imgAfter);
-      $img.removeClass("fading");
-    }, 300);
-  };
+//   // 애니메이션: 잠깐 멈춤 → 전부 백스페이스 → 새 문장 타이핑 → 완료 처리
+//   tw.pauseFor(250)
+//     .deleteAll()                // 백스페이스 애니메이션
+//     .typeString(distortedText)  // 왜곡 문장 타이핑
+//     .callFunction(() => {
+//       // 상태 업데이트: 이제야 'distorted'로 전환
+//       st[index] = { text: distortedText, status: "distorted" };
 
-  btnEl.addEventListener("click", onSave, { once: true });
+//       // 강조 스타일(굵게/물결 밑줄) 유지
+//       targetSpan.classList.add("distorting");
+//       targetSpan.contentEditable = "false";
+
+//       // 인라인 아이콘 버튼 추가 (연필 → 편집 진입)
+//       // 이미 붙어있지 않은 경우에만
+//       if (!targetSpan.nextSibling || 
+//           !(targetSpan.nextSibling.classList && targetSpan.nextSibling.classList.contains('action-btn-inline'))) {
+//         const btn = document.createElement("button");
+//         btn.className = "action-btn-inline";
+//         btn.type = "button";
+//         btn.setAttribute("aria-label", "문장 수정");
+//         btn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+//         btn.addEventListener("click", (e) => {
+//           e.stopPropagation();
+//           enterEditMode(targetSpan, pageIndex, index, btn);
+//         });
+//         targetSpan.insertAdjacentElement('afterend', btn);
+//         targetSpan.insertAdjacentText('afterend', ' ');
+//       }
+
+//       // (선택) 여기서 이미지 전환까지 하고 싶다면:
+//       // const $img = $root.find(".page-image img");
+//       // $img.addClass("fading");
+//       // setTimeout(() => { $img.attr("src", data.imgAfter); $img.removeClass("fading"); }, 300);
+//     })
+//     .start();
+// }
+
+function applyDistortion(pageIndex) {
+  if (pageIndex !== currentPage) return;
+  const data = PAGES[pageIndex - 1];
+  if (!data || !data.distort) return;
+
+  const st = pageStates.get(pageIndex);
+  const { index, text: distortedText } = data.distort;
+
+  // 이미 수정된 문장은 스킵
+  if (!st[index] || st[index].status === "modified") return;
+
+  const $root = getPageRoot(pageIndex);
+  const $body = $root.find(".page-body");
+  if (!$body.length) return;
+
+  const targetSpan = $body.find(".sentence").get(index);
+  if (!targetSpan) return;
+
+  // 중복 삽입 방지
+  if (targetSpan.dataset.distortedAttached === "1") return;
+  targetSpan.dataset.distortedAttached = "1";
+
+  // 🔹 원본(targetSpan)은 그대로 두고, 그 뒤에 왜곡 스팬(ghost)만 추가
+  const ghost = document.createElement("span");
+  ghost.className = "sentence distorting";
+  ghost.textContent = ""; // 타이핑으로 채울 것
+
+  // 원본 뒤에 공백 + ghost 끼워넣기
+  // targetSpan.insertAdjacentText("afterend", " ");
+  targetSpan.insertAdjacentElement("afterend", ghost);
+
+  // 인라인 아이콘 버튼 (편집)
+  const btn = document.createElement("button");
+  btn.className = "action-btn-inline";
+  btn.type = "button";
+  btn.setAttribute("aria-label", "문장 수정");
+  btn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    // ghost는 상태에 없으므로 sentIdx = -1로 넘김
+    enterEditMode(ghost, pageIndex, -1, btn);
+  });
+  ghost.insertAdjacentElement("afterend", btn);
+  // ghost.insertAdjacentText("afterend", " ");
+
+  // 🔹 요청대로: 백스페이스 없이 "그냥 타이핑만"
+  const tw = new Typewriter(ghost, {
+    autoStart: false,
+    delay: 70,
+    cursor: '|' // 커서 싫으면 '' 로
+  });
+
+  tw.typeString(distortedText).start();
 }
+
+
+// function enterEditMode(spanEl, pageIndex, sentIdx, btnEl) {
+//   // 이미 편집 중이면 무시
+//   if (spanEl.isContentEditable) return;
+
+//   // 편집 가능
+//   spanEl.contentEditable = "true";
+//   spanEl.focus();
+//   spanEl.classList.add("distorting"); // 굵게/밑줄 유지
+
+//   // 아이콘을 체크로 교체, 우선 비활성
+//   btnEl.innerHTML = '<i class="fas fa-paper-plane"></i>';
+//   btnEl.disabled = true;
+
+//   const onInput = () => {
+//     const val = spanEl.textContent.trim();
+//     btnEl.disabled = val.length < MIN_EDIT_LEN;
+//   };
+//   spanEl.addEventListener("input", onInput);
+
+//   // 체크(저장) 동작
+//   const onSave = () => {
+//     const newText = spanEl.textContent.trim();
+//     if (newText.length < MIN_EDIT_LEN) return;
+
+//     // 상태 업데이트
+//     const st = pageStates.get(pageIndex);
+//     st[sentIdx] = { text: newText, status: "modified" };
+
+//     // UI 정리
+//     spanEl.classList.remove("distorting");
+//     spanEl.contentEditable = "false";
+//     spanEl.removeEventListener("input", onInput);
+
+//     // 아이콘 버튼 제거(원하면 숨김 처리로 대체 가능)
+//     btnEl.remove();
+
+//     // 이미지 교체 (before → after) + 페이드
+//     const $root = getPageRoot(pageIndex);
+//     const data = PAGES[pageIndex - 1];
+//     const $img = $root.find(".page-image img");
+//     $img.addClass("fading");
+//     setTimeout(() => {
+//       $img.attr("src", data.imgAfter);
+//       $img.removeClass("fading");
+//     }, 300);
+//   };
+
+//   btnEl.addEventListener("click", onSave, { once: true });
+// }
 
 
 // 페이지 로드 (문장/이미지/날짜 초기화 + 왜곡 예약)
@@ -365,6 +497,58 @@ function enterEditMode(spanEl, pageIndex, sentIdx, btnEl) {
 //     });
 //   }
 // });
+
+function enterEditMode(spanEl, pageIndex, sentIdx, btnEl) {
+  if (spanEl.isContentEditable) return;
+
+  spanEl.contentEditable = "true";
+  spanEl.foßus();
+  spanEl.classList.add("distorting");
+
+  btnEl.innerHTML = '<i class="fas fa-paper-plane"></i>';
+  btnEl.disabled = true;
+
+  const onInput = () => {
+    const val = spanEl.textContent.trim();
+    btnEl.disabled = val.length < MIN_EDIT_LEN;
+  };
+  spanEl.addEventListener("input", onInput);
+
+  const onSave = () => {
+    const newText = spanEl.textContent.trim();
+    if (newText.length < MIN_EDIT_LEN) return;
+
+    // 🔹 상태 반영은 sentIdx가 유효할 때만
+    if (sentIdx >= 0) {
+      const st = pageStates.get(pageIndex);
+      st[sentIdx] = { text: newText, status: "modified" };
+    } else {
+      // DOM-only(ghost)일 땐 상태 갱신 없이 DOM만 확정
+      // 필요하면 data-속성으로 표시만 남겨도 OK
+      spanEl.dataset.modified = "1";
+    }
+
+    spanEl.classList.remove("distorting");
+    spanEl.contentEditable = "false";
+    spanEl.removeEventListener("input", onInput);
+
+    btnEl.remove();
+
+    // 이미지 전환 유지
+    const $root = getPageRoot(pageIndex);
+    const data = PAGES[pageIndex - 1];
+    const $img = $root.find(".page-image img");
+    $img.addClass("fading");
+    setTimeout(() => {
+      $img.attr("src", data.imgAfter);
+      $img.removeClass("fading");
+    }, 300);
+  };
+
+  btnEl.addEventListener("click", onSave, { once: true });
+}
+
+
 document.addEventListener("DOMContentLoaded", () => {
   const have = getPageCount();
   const need = PAGES.length;

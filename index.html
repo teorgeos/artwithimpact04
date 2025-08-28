@@ -51,9 +51,9 @@
 
 <h1 class = "page-title">公 論 紙</h1>
 <div class="page-divider"></div>
-<!-- <section class = "page-image"> -->
+<!-- <section class = "page-image">
   <img src="exampleimage.png" alt="Newspaper Image"/>
-</section>
+</section> -->
 
 <section class="page-subtitle">
     "자발적으로 간 적 없어"
@@ -84,9 +84,9 @@
 
 <h1 class = "page-title">公 論 紙</h1>
 <div class="page-divider"></div>
-<section class = "page-image">
+<!-- <section class = "page-image">
   <img src="exampleimage.png" alt="Newspaper Image"/>
-</section>
+</section> -->
 
 <section class="page-subtitle">
     "자발적으로 간 적 없어"
@@ -118,9 +118,9 @@
 
 <h1 class = "page-title">公 論 紙</h1>
 <div class="page-divider"></div>
-<section class = "page-image">
+<!-- <section class = "page-image">
   <img src="exampleimage.png" alt="Newspaper Image"/>
-</section>
+</section> -->
 
 <section class="page-subtitle">
     "자발적으로 간 적 없어"
@@ -147,20 +147,32 @@
 </div>
 
 <script>
-  $(document).ready(function() {
-    $("#flipbook").turn(
-      {
+//   $(document).ready(function() {
+//     $("#flipbook").turn(
+//       {
+//     display: 'single',
+//     width: $(window).height() * 0.8,   // 세로의 2/3
+//     height: $(window).height(),
+
+//     // 920 * 1080
+//     autoCenter: true
+//   }
+// );
+
+// //  // 모서리 미리보기(겹치는 느낌) 끄고 싶으면:
+// //       $('#flipbook').turn('peel', false);
+// });
+
+$(document).ready(function() {
+  const h = $(window).height();
+  const w = h * (9/16);  // 비율 9:16 맞춤
+
+  $("#flipbook").turn({
     display: 'single',
-    width: $(window).height() * 0.8,   // 세로의 2/3
-    height: $(window).height(),
-
-    // 920 * 1080
+    width: w,
+    height: h,
     autoCenter: true
-  }
-);
-
-//  // 모서리 미리보기(겹치는 느낌) 끄고 싶으면:
-//       $('#flipbook').turn('peel', false);
+  });
 });
 
   </script>

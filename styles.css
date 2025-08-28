@@ -114,10 +114,10 @@ body {
   letter-spacing: 2px;      
 }
 
-.page-image {
+/* .page-image {
   width: auto;
   display: flex;
-  justify-content: center;  /* 가운데 정렬 */
+  justify-content: center;  
   margin: 0 20px; 
   box-sizing: border-box;
 }
@@ -125,7 +125,7 @@ body {
 .page-image img {
 
   width: 100%;
-  height: auto;       /* 비율 유지 */
+  height: auto;       
   display: block;
 
   opacity: 1;
@@ -133,8 +133,8 @@ body {
 }
 
 .page-image img.fading {
-  opacity: 0;  /* 잠깐 사라졌다가 */
-}
+  opacity: 0;  
+} */
 
 .page-subtitle {
   text-align: center;

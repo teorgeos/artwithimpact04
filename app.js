@@ -4,6 +4,8 @@
 
 const DISTORT_DELAY_MS = 3000; // 왜곡까지 대기시간
 const MIN_EDIT_LEN = 10;       // 수정 버튼 활성 최소 글자
+const COVER_OFFSET = 1; // 1페이지는 커버
+
 
 // ----- 페이지 데이터 (각 10문장, 왜곡 1개, 이미지 전/후) -----
 const PAGES = [
@@ -24,40 +26,40 @@ const PAGES = [
     ],
     distort: { index: 6, text: "전시 입장료가 15만원으로 책정되어 큰 논란이 발생했습니다." } // 7번째 왜곡
   },
-  {
-    imgBefore: "img/page2_before.png",
-    imgAfter:  "img/page2_after.png",
-    sentences: [
-      "두 번째 페이지는 ‘거리의 문장’ 프로젝트를 다룹니다.",
-      "참여자들은 매주 도시 곳곳의 표지판·전단·메모를 채집합니다.",
-      "수집된 문장들은 의미망으로 엮여 온라인 지도와 신문에 동시 게재됩니다.",
-      "팀은 비문과 은어가 공적 공간에서 어떻게 작동하는지 관찰합니다.",
-      "다국어 표지판의 번역 품질이 이동 경험에 미치는 영향도 기록합니다.",
-      "차별적 표현은 삭제보다 맥락 공개와 토론으로 대응합니다.",
-      "결과물은 누구나 수정 제안을 남길 수 있는 공개 저장소로 운영됩니다.",
-      "학교·도서관·주민센터에서 낭독회와 소규모 전시가 순회로 열립니다.",
-      "다음 분기에는 시각장애인 접근성을 고려한 음성 버전이 제공됩니다.",
-      "도시의 문장을 시민이 함께 다듬는 느린 편집 과정이 핵심입니다."
-    ],
-    distort: { index: 3, text: "프로젝트는 비판을 피하기 위해 모든 오류를 은폐했다고 밝혔습니다." } // 4번째 왜곡
-  },
-  {
-    imgBefore: "img/page3_before.png",
-    imgAfter:  "img/page3_after.png",
-    sentences: [
-      "세 번째 페이지는 기술과 문화유산의 만남을 다루는 특집입니다.",
-      "장인과 디자이너가 함께 도구의 사용법을 기록하는 워크숍을 열었습니다.",
-      "참여자는 손의 움직임을 추적해 동작 사전을 구축합니다.",
-      "자료는 오픈 라이선스로 배포되어 수업과 연구에 재사용됩니다.",
-      "연구팀은 재현의 정확성보다 학습자의 신체 경험을 중시합니다.",
-      "긴 공정을 단축하기 위해 가상 환경 실습을 병행합니다.",
-      "기술은 설명을 대신하기보다 이해의 발판이어야 한다는 입장입니다.",
-      "마지막에는 각자 배운 동작을 짧은 퍼포먼스로 공유합니다.",
-      "참여자 피드백은 다음 회차 설계에 직접 반영됩니다.",
-      "배움은 전시장이 아니라 사람 사이에서 완성된다는 메시지를 전합니다."
-    ],
-    distort: { index: 8, text: "참여자 다수는 유료 전환으로 프로그램이 중단됐다고 증언했습니다." } // 9번째 왜곡
-  }
+  // {
+  //   imgBefore: "img/page2_before.png",
+  //   imgAfter:  "img/page2_after.png",
+  //   sentences: [
+  //     "두 번째 페이지는 ‘거리의 문장’ 프로젝트를 다룹니다.",
+  //     "참여자들은 매주 도시 곳곳의 표지판·전단·메모를 채집합니다.",
+  //     "수집된 문장들은 의미망으로 엮여 온라인 지도와 신문에 동시 게재됩니다.",
+  //     "팀은 비문과 은어가 공적 공간에서 어떻게 작동하는지 관찰합니다.",
+  //     "다국어 표지판의 번역 품질이 이동 경험에 미치는 영향도 기록합니다.",
+  //     "차별적 표현은 삭제보다 맥락 공개와 토론으로 대응합니다.",
+  //     "결과물은 누구나 수정 제안을 남길 수 있는 공개 저장소로 운영됩니다.",
+  //     "학교·도서관·주민센터에서 낭독회와 소규모 전시가 순회로 열립니다.",
+  //     "다음 분기에는 시각장애인 접근성을 고려한 음성 버전이 제공됩니다.",
+  //     "도시의 문장을 시민이 함께 다듬는 느린 편집 과정이 핵심입니다."
+  //   ],
+  //   distort: { index: 3, text: "프로젝트는 비판을 피하기 위해 모든 오류를 은폐했다고 밝혔습니다." } // 4번째 왜곡
+  // },
+  // {
+  //   imgBefore: "img/page3_before.png",
+  //   imgAfter:  "img/page3_after.png",
+  //   sentences: [
+  //     "세 번째 페이지는 기술과 문화유산의 만남을 다루는 특집입니다.",
+  //     "장인과 디자이너가 함께 도구의 사용법을 기록하는 워크숍을 열었습니다.",
+  //     "참여자는 손의 움직임을 추적해 동작 사전을 구축합니다.",
+  //     "자료는 오픈 라이선스로 배포되어 수업과 연구에 재사용됩니다.",
+  //     "연구팀은 재현의 정확성보다 학습자의 신체 경험을 중시합니다.",
+  //     "긴 공정을 단축하기 위해 가상 환경 실습을 병행합니다.",
+  //     "기술은 설명을 대신하기보다 이해의 발판이어야 한다는 입장입니다.",
+  //     "마지막에는 각자 배운 동작을 짧은 퍼포먼스로 공유합니다.",
+  //     "참여자 피드백은 다음 회차 설계에 직접 반영됩니다.",
+  //     "배움은 전시장이 아니라 사람 사이에서 완성된다는 메시지를 전합니다."
+  //   ],
+  //   distort: { index: 8, text: "참여자 다수는 유료 전환으로 프로그램이 중단됐다고 증언했습니다." } // 9번째 왜곡
+  // }
 ];
 
 // ----- 상태 관리 -----
@@ -110,12 +112,34 @@ function preloadImages() {
 }
 
 
+// function initAllPages() {
+//   const need = PAGES.length;
+
+//   for (let i = 1; i <= need; i++) {
+//     const data = PAGES[i - 1];
+//     const $root = getPageRoot(i);
+
+//     // 날짜
+//     const date = todayStr();
+//     $root.find(".current-date, #current-date").text(date);
+
+//     // 이미지(before) 고정
+//     $root.find(".page-image img").attr("src", data.imgBefore);
+
+//     // 상태/문장 렌더
+//     pageStates.set(i, data.sentences.map(t => ({ text: t, status: "original" })));
+//     renderSentences(i);
+//   }
+// }
+
 function initAllPages() {
   const need = PAGES.length;
 
-  for (let i = 1; i <= need; i++) {
-    const data = PAGES[i - 1];
-    const $root = getPageRoot(i);
+  for (let i = 0; i < need; i++) {
+    const data = PAGES[i];
+    const pageIndex = i + 2; // ⚡ 데이터는 2번째 page부터 채운다 (1번은 인트로)
+
+    const $root = getPageRoot(pageIndex);
 
     // 날짜
     const date = todayStr();
@@ -125,11 +149,10 @@ function initAllPages() {
     $root.find(".page-image img").attr("src", data.imgBefore);
 
     // 상태/문장 렌더
-    pageStates.set(i, data.sentences.map(t => ({ text: t, status: "original" })));
-    renderSentences(i);
+    pageStates.set(pageIndex, data.sentences.map(t => ({ text: t, status: "original" })));
+    renderSentences(pageIndex);
   }
 }
-
 
 
 
@@ -337,7 +360,8 @@ function clearDistortion(pageIndex) {
 
 function applyDistortion(pageIndex) {
   if (pageIndex !== currentPage) return;
-  const data = PAGES[pageIndex - 1];
+  // const data = PAGES[pageIndex - 1];
+  const data = getDataForPage(pageIndex)
   if (!data || !data.distort) return;
 
   const st = pageStates.get(pageIndex);
@@ -501,8 +525,13 @@ function applyDistortion(pageIndex) {
 function enterEditMode(spanEl, pageIndex, sentIdx, btnEl) {
   if (spanEl.isContentEditable) return;
 
+  const cursor = spanEl.parentNode.querySelector(".Typewriter__cursor");
+  if (cursor) cursor.remove();
+
+  spanEl.textContent = "";
+
   spanEl.contentEditable = "true";
-  spanEl.foßus();
+  spanEl.focus();
   spanEl.classList.add("distorting");
 
   btnEl.innerHTML = '<i class="fas fa-paper-plane"></i>';
@@ -518,7 +547,7 @@ function enterEditMode(spanEl, pageIndex, sentIdx, btnEl) {
     const newText = spanEl.textContent.trim();
     if (newText.length < MIN_EDIT_LEN) return;
 
-    // 🔹 상태 반영은 sentIdx가 유효할 때만
+    // 상태 반영은 sentIdx가 유효할 때만
     if (sentIdx >= 0) {
       const st = pageStates.get(pageIndex);
       st[sentIdx] = { text: newText, status: "modified" };
@@ -534,9 +563,13 @@ function enterEditMode(spanEl, pageIndex, sentIdx, btnEl) {
 
     btnEl.remove();
 
+    const cursor = spanEl.parentNode.querySelector('.Typewriter__cursor');
+    if (cursor) cursor.remove();
+
     // 이미지 전환 유지
     const $root = getPageRoot(pageIndex);
-    const data = PAGES[pageIndex - 1];
+    // const data = PAGES[pageIndex - 1];
+getDataForPage(pageIndex);
     const $img = $root.find(".page-image img");
     $img.addClass("fading");
     setTimeout(() => {
@@ -563,8 +596,8 @@ document.addEventListener("DOMContentLoaded", () => {
   preloadImages();
 
   // 3) 현재 페이지 기준 왜곡 타이머 시작
-  currentPage = 1;
-  scheduleDistortion(1);
+  currentPage = 2;
+  scheduleDistortion(2);
 
   // 4) 페이지 넘길 때 타이머만 관리
   // if ($.fn && $.fn.turn) {
@@ -611,3 +644,7 @@ document.addEventListener("DOMContentLoaded", () => {
 }
 
 });
+function getDataForPage(pageIndex) {
+  const dataIndex = pageIndex - 1 - COVER_OFFSET; // ex) pageIndex=2 -> 0
+  return PAGES[dataIndex];
+}
